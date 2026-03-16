@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import glob as globmod
 import os
-from pathlib import Path
 from typing import Optional
 
 from shellsense.core.models import (
@@ -12,7 +11,6 @@ from shellsense.core.models import (
     CommandInfo,
     FileChange,
     FileChangeType,
-    RiskLevel,
     Suggestion,
 )
 from shellsense.core.risk import RiskScorer
@@ -123,7 +121,6 @@ class FilesystemPredictor:
                 return total
         except OSError:
             return None
-        return None
 
     def _predict_rm(self, cmd: CommandInfo):
         is_recursive = any(f in cmd.flags for f in ("-r", "-R", "--recursive", "-rf", "-fr"))
@@ -139,6 +136,15 @@ class FilesystemPredictor:
                             path=path,
                             change_type=FileChangeType.DELETE,
                             details="Directory and all contents will be removed",
+                            size_bytes=size,
+                        )
+                    )
+                elif os.path.isdir(path) and not is_recursive:
+                    changes.append(
+                        FileChange(
+                            path=path,
+                            change_type=FileChangeType.DELETE,
+                            details="rm will FAIL: target is a directory (use -r to remove)",
                             size_bytes=size,
                         )
                     )
@@ -438,8 +444,6 @@ class FilesystemPredictor:
 
     def _predict_pip(self, cmd: CommandInfo):
         subcommand = cmd.args[0] if cmd.args else ""
-        packages = cmd.args[1:] if len(cmd.args) > 1 else ()
-
         if subcommand == "install":
             rev_note = "Installed packages can be removed with pip uninstall"
             reversible = True
