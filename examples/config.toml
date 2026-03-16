@@ -1,0 +1,41 @@
+# ShellSense Example Configuration
+# Copy to ~/.shellsense/config.toml
+
+[general]
+# Risk thresholds (0-100)
+# Commands scoring below caution threshold are "safe"
+# Commands scoring between caution and danger are "caution"
+# Commands scoring above danger threshold are "danger"
+risk_threshold_caution = 20
+risk_threshold_danger = 50
+
+# Automatically block commands rated as "danger"
+auto_block_danger = false
+
+# Commands to always allow (bypass checking)
+allowlist = [
+    "ls",
+    "cat",
+    "echo",
+    "pwd",
+]
+
+# Commands to always block
+blocklist = [
+    "rm -rf /",
+    ":(){ :|:& };:",
+]
+
+# History settings
+max_history = 1000
+
+# Custom dangerous patterns
+[[patterns.dangerous]]
+regex = "my-company-tool --delete-all"
+score = 80
+warning = "This will delete all company data!"
+
+[[patterns.dangerous]]
+regex = "terraform destroy"
+score = 60
+warning = "Terraform destroy will remove all managed infrastructure"

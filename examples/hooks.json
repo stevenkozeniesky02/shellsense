@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "shellsense check \"$TOOL_INPUT_COMMAND\" --json",
+            "description": "ShellSense: Analyze command safety before execution",
+            "blocking": true
+          }
+        ]
+      }
+    ]
+  }
+}
